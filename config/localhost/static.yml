@@ -12,20 +12,17 @@ providers:
     exposedByDefault: false
 
   file:
-    filename: /etc/traefik/dynamic.yml
+    filename: "/etc/traefik/dynamic.yml"
     watch: true
 
 log:
-  level: INFO
-  format: common
+  level: "DEBUG"
+  format: "common"
+
+accesslog:
 
 entryPoints:
   http:
     address: ":80"
-    http:
-      redirections:
-        entryPoint:
-          to: https
-          scheme: https
   https:
     address: ":443"

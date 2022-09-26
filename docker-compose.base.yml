@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  reverse-proxy:
+    image: "traefik:v2.8.7"
+    restart: "unless-stopped"
+    security_opt:
+      - "no-new-privileges:true"
+    networks:
+      - "reverse-proxy"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  whoami:
+    image: "traefik/whoami:v1.8.6"
+    security_opt:
+      - "no-new-privileges:true"
+    networks:
+      - "reverse-proxy"
+    labels:
+      # Enable this container to be mapped by traefik
+      # For more information, see: https://docs.traefik.io/providers/docker/#exposedbydefault
+      - "traefik.enable=true"
+      # Define the network that should be used
+      - "traefik.docker.network=reverse-proxy"
+      # URL to reach this container
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+      # Activation of TLS
+      - "traefik.http.routers.whoami.tls=true"
+      # If port is different than 80, use the following service:
+      # - "traefik.http.services.<service_name>.loadbalancer.server.port=<port>"
+
+  backend:
+    build:
+      context: "./backend/api"
+    command: "gunicorn main:app --bind 0.0.0.0:5000 -w 4 -k uvicorn.workers.UvicornWorker"
+    security_opt:
+      - "no-new-privileges:true"
+    networks:
+      - "reverse-proxy"
+    expose:
+      - "5000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=reverse-proxy"
+      - "traefik.http.routers.fastapi.tls=true"
+      - "traefik.http.routers.fastapi.rule=Host(`api.localhost`)"
+      - "traefik.http.services.fastapi.loadbalancer.server.port=5000"

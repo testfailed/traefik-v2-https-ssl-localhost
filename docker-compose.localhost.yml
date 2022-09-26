@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  reverse-proxy:
+    ports:
+      - "8080:8080"
+    volumes:
+      # Map the localhost static configuration into the container
+      - "./config/localhost/static.yml:/etc/traefik/traefik.yml:ro"
+      # Map the localhost dynamic configuration into the container
+      - "./config/localhost/dynamic.yml:/etc/traefik/dynamic.yml:ro"
+      # Map the localhost certificates into the container
+      - "./certificates/localhost:/etc/certificates:ro"
+
+networks:
+  reverse-proxy:
+    external: true
