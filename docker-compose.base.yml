@@ -15,7 +15,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   whoami:
-    image: "traefik/whoami:v1.8.6"
+    image: "traefik/whoami:v1.9.0"
     security_opt:
       - "no-new-privileges:true"
     networks:
